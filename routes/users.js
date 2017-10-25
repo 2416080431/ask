@@ -5,7 +5,7 @@ let common = require('./common');
 
 ///请求注册页面
 router.get('/register',(req,res) =>{
-	res.render('register');
+	res.render('user/register');
 });
 
 ////////////////////////注册接口
@@ -17,33 +17,33 @@ router.post('/register',(req,res,next) =>{
 	User.findOne({username},(err,doc) =>{
 		if(err){
 			res.locals.message = common.errorMessage("数据库查询异常");
-			return res.render('register');
+			return res.render('user/register');
 		}
 		//1.如果用户名存在
 		if(doc){
 			res.locals.message = common.errorMessage("该用户名已经存在");
-			return res.render('register');
+			return res.render('user/register');
 		}
 		
 		//2.用户名不存在，则写入数据库
 		User.create({"username":username,"password":password,"avatar":"null"}, (err,doc) =>{
 			if(err){
 				res.locals.message = common.errorMessage("数据库插入异常");
-				return res.render('register');
+				return res.render('user/register');
 			}
 			if(doc){
 				res.locals.message = "注册成功";
-				return res.render('register');
+				return res.render('user/register');
 			}
 			res.locals.message = common.errorMessage("注册失败");
-			return res.render('register');
+			return res.render('user/register');
 		});
 	});
 });
 
 //请求登录页面
 router.get('/login',(req,res) =>{
-	res.render('login');
+	res.render('user/login');
 });
 
 //////////////////////////////////登录接口
@@ -54,15 +54,15 @@ router.post('/login',(req,res,next) =>{
 	User.findOne({username},(err,doc) =>{
 		if(err){
 			res.locals.message = common.errorMessage('数据库查询异常');
-			return res.render('login');
+			return res.render('user/login');
 		}
 		if(!doc){
 			res.locals.message = common.errorMessage('用户名错误');
-			return res.render('login');
+			return res.render('user/login');
 		}
 		if(doc.password !== common.encryption(password)){
 			res.locals.message = common.errorMessage('密码错误');
-			return res.render('login');
+			return res.render('user/login');
 		}
 		////登录成功
 		req.session.username = username;

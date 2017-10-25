@@ -1,4 +1,12 @@
 <% include ./header.ejs %>
-		主页
+		<h2>问题列表</h2>
+		<ul>
+			<% for(var i=0; i<result.length; i++){ %>
+				<li>
+					<a href="/questions/detail?_id=<%= result[i]._id %>"><%= result[i].title %></a>
+					<span><%= result[i].date %></span>
+				</li>
+			<%}%>
+		</ul>
   </body>
 </html>

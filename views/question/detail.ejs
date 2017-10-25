@@ -1,0 +1,23 @@
+<% include ../header.ejs %>
+
+<div>
+	<h2><%= result.title%></h2>
+	<p><%= result.content%></p>
+	<span>顶：<%= result.up.length%>  踩：<%= result.down.length%></span>
+	<a href="/questions/comment?_id=<%= result._id %>">去评论</a>
+</div>
+<div>
+	<h2>评论</h2>
+	<ul>
+		<% for(var i=0; i<result.comments.length; i++){ %>
+			<li>
+				<h3><%= result.comments[i].username %></h3>
+				<p><%= result.comments[i].content %></p>
+				<span>点赞:<%= result.comments[i].thumbUp.length %></span>
+			</li>
+		<%}%>
+	</ul>
+</div>
+
+</body>
+</html>
