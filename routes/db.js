@@ -1,6 +1,7 @@
 //连接数据库
-var mongoose = require('mongoose'),
-    DB_URL = 'mongodb://localhost:27017/ask';
+let config = require('./config');
+let mongoose = require('mongoose'),
+    DB_URL = config.MONGODB_URL;
 mongoose.connect(DB_URL);
 mongoose.connection.on('connected', function () {
     console.log('Mongoose connection open to ' + DB_URL);

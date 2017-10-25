@@ -4,11 +4,30 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('express-session');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
+
+app.use(session({
+	secret: "userSession",
+	resave: true,
+	saveUninitialized: true
+}));
+
+app.use((req,res,next) =>{
+	res.locals.username = req.session.username; //从session中获取user信息
+	let err = req.session.error;
+	delete req.session.error;
+	res.locals.message = "";  //在页面中展示的信息
+	
+	if(err){
+		res.locals.message = '<div style="color:red">'+err+'</div>'
+	}
+	next();
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
