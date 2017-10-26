@@ -3,8 +3,19 @@
 <div>
 	<h2><%= result.title%></h2>
 	<p><%= result.content%></p>
-	<span>顶：<%= result.up.length%>  踩：<%= result.down.length%></span>
-	<a href="/questions/comment?_id=<%= result._id %>">去评论</a>
+	<span>
+		<%if(isUp){%>
+			<a style="color: red;" href="/questions/up">顶：<%= result.up.length%></a>
+		<%}else{%>
+			<a href="/questions/up">顶：<%= result.up.length%></a>
+		<%}%>
+		<%if(isDown){%>
+			<a style="color: red;" href="/questions/down">踩：<%= result.down.length%></a>
+		<%}else{%>
+		<a href="/questions/down">踩：<%= result.down.length%></a>
+		<%}%>
+	</span>
+	<a href="/questions/comment">去评论</a>
 </div>
 <div>
 	<h2>评论</h2>
@@ -13,7 +24,27 @@
 			<li>
 				<h3><%= result.comments[i].username %></h3>
 				<p><%= result.comments[i].content %></p>
-				<span>点赞:<%= result.comments[i].thumbUp.length %></span>
+				<%if(result.comments[i].thumbUp.length == 0){%>
+					<span>
+						<a href="/questions/thumbUp?commentId=<%= result.comments[i]._id %>">
+						点赞:<%= result.comments[i].thumbUp.length %></a>
+					</span>
+				<%}%>
+				<%for(var j=0; j<result.comments[i].thumbUp.length; j++){%>
+					<%if(result.comments[i].thumbUp[j] == username){%>
+						<span>
+							<a style="color: red;" href="/questions/thumbUp?commentId=<%= result.comments[i]._id %>">
+							点赞:<%= result.comments[i].thumbUp.length %></a>
+						</span>
+						<%break%>
+					<%}else if(j == result.comments[i].thumbUp.length-1){%>
+						<span>
+							<a href="/questions/thumbUp?commentId=<%= result.comments[i]._id %>">
+							点赞:<%= result.comments[i].thumbUp.length %></a>
+						</span>
+					<%}%>
+				<%}%>
+				
 			</li>
 		<%}%>
 	</ul>
