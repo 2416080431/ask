@@ -5,6 +5,6 @@ module.exports = {
 		return md5(md5(password + config.SALT));
 	},
 	errorMessage : (message) =>{
-		return '<h2 style="color:red">'+message+'</h2>'
+		return '<div class="alert alert-danger" role="alert">'+message+'</div>'
 	}
 }

@@ -1,54 +1,60 @@
 <% include ../header.ejs %>
 
 <div>
-	<h2><%= result.title%></h2>
-	<p><%= result.content%></p>
+	<h3><%= result.title%></h3>
+	<pre><%= result.content%></pre>
 	<span>
 		<%if(isUp){%>
-			<a style="color: red;" href="/questions/up">顶：<%= result.up.length%></a>
+			<button type="button" class="btn btn-danger"><a style="color: white;" href="/questions/up">顶：<%= result.up.length%></a></button>
 		<%}else{%>
-			<a href="/questions/up">顶：<%= result.up.length%></a>
+			
+			<button type="button" class="btn btn-default"><a  href="/questions/up">顶：<%= result.up.length%></a></button>
 		<%}%>
 		<%if(isDown){%>
-			<a style="color: red;" href="/questions/down">踩：<%= result.down.length%></a>
+			<button type="button" class="btn btn-warning"><a style="color: white;" href="/questions/down">踩：<%= result.down.length%></a></button>
 		<%}else{%>
-		<a href="/questions/down">踩：<%= result.down.length%></a>
+		<button type="button" class="btn btn-default"><a href="/questions/down">踩：<%= result.down.length%></a></button>
 		<%}%>
 	</span>
-	<a href="/questions/comment">去评论</a>
+	<button type="button" class="btn btn-default"><a href="/questions/comment">去评论</a></button>
 </div>
+
 <div>
-	<h2>评论</h2>
-	<ul>
+	<h3>评论</h3>
+	<ul style="list-style: none;">
 		<% for(var i=0; i<result.comments.length; i++){ %>
+			<hr />
 			<li>
-				<h3><%= result.comments[i].username %></h3>
-				<p><%= result.comments[i].content %></p>
+				<h4><%= result.comments[i].username %>：</h4>
+				<pre><%= result.comments[i].content %></pre>
 				<%if(result.comments[i].thumbUp.length == 0){%>
-					<span>
+					<button type="button" class="btn btn-default">
 						<a href="/questions/thumbUp?commentId=<%= result.comments[i]._id %>">
 						点赞:<%= result.comments[i].thumbUp.length %></a>
-					</span>
+					</button>
 				<%}%>
 				<%for(var j=0; j<result.comments[i].thumbUp.length; j++){%>
 					<%if(result.comments[i].thumbUp[j] == username){%>
-						<span>
-							<a style="color: red;" href="/questions/thumbUp?commentId=<%= result.comments[i]._id %>">
+						<button type="button" class="btn btn-danger">
+							<a style="color: white;" href="/questions/thumbUp?commentId=<%= result.comments[i]._id %>">
 							点赞:<%= result.comments[i].thumbUp.length %></a>
-						</span>
+						</button>
 						<%break%>
 					<%}else if(j == result.comments[i].thumbUp.length-1){%>
-						<span>
+						<button type="button" class="btn btn-default">
 							<a href="/questions/thumbUp?commentId=<%= result.comments[i]._id %>">
 							点赞:<%= result.comments[i].thumbUp.length %></a>
-						</span>
+						</button>
 					<%}%>
 				<%}%>
 				
 			</li>
+			
 		<%}%>
 	</ul>
+	</div>
+	</div>
 </div>
-
+</div>
 </body>
 </html>

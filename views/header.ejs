@@ -1,21 +1,48 @@
 <!doctype html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8" />
-	<link rel="stylesheet" href="/stylesheets/bootstrap.min.css" />
-	<script type="text/javascript" src="/javascripts/jquery-3.2.1.js" ></script>
-	<script type="text/javascript" src="/javascripts/bootstrap.min.js" ></script>
-</head>
-<body>
-	<ul>
-		<li><a href="/">首页</a></li>
-		<% if (username) { %>
-			<%= username %>
-			<li><a href="/questions/add">提问题</a></li>
-			<li><a href="/users/logout">退出</a></li>
-		<%} else {%>
-			<li><a href="/users/login">登录</a></li>
-			<li><a href="/users/register">注册</a></li>
-		<%}%>
-	</ul>
-	<%- message %>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="/stylesheets/bootstrap.min.css" />
+		<script type="text/javascript" src="/javascripts/jquery-3.2.1.js"></script>
+		<script type="text/javascript" src="/javascripts/bootstrap.min.js"></script>
+	</head>
+
+	<body>
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-12">
+
+					<ul class="nav nav-tabs" style="margin-bottom: 30px;">
+						<li role="presentation" class="active">
+							<a href="/">主页</a>
+						</li>
+						<% if(username){ %>
+						<li role="presentation">
+							<a href="/questions/add">提问题</a>
+						</li>
+						<li role="presentation" class="dropdown">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+								<%= username %> <span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li role="presentation">
+									<a href="#">我的问题</a>
+								</li>
+								<li role="presentation">
+									<a href="/users/logout">退出</a>
+								</li>
+							</ul>
+						</li>
+						<%}else{%>
+						<li role="presentation">
+							<a href="/users/login">登录</a>
+						</li>
+						<li role="presentation">
+							<a href="/users/register">注册</a>
+						</li>
+						<%}%>
+
+					</ul>
+					

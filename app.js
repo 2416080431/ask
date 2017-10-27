@@ -42,6 +42,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use((req,res,next) =>{
+	if(req.session.username || req.originalUrl == '/users/login' || req.originalUrl == '/users/register' || req.originalUrl == '/'){
+		next();
+	}else{
+		res.render('user/login');
+	}
+});
+
 app.use('/', index);
 app.use('/users', users);
 app.use('/questions',questions);
