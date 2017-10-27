@@ -33,6 +33,8 @@ router.get('/comment',(req,res) =>{
 	res.render('question/comment');
 });
 
+
+
 ///////////////////////新增提问
 router.post('/add',(req,res) =>{
 	let {title,content} = req.body;
@@ -78,6 +80,7 @@ router.post('/comment',(req,res) =>{
 		});
 	});
 });
+
 
 //////////////////////////顶问题
 router.get('/up',(req,res) =>{

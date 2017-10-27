@@ -16,11 +16,11 @@
 
 					<ul class="nav nav-tabs" style="margin-bottom: 30px;">
 						<li role="presentation" class="active">
-							<a href="/">主页</a>
+							<a href="/">所有话题</a>
 						</li>
 						<% if(username){ %>
 						<li role="presentation">
-							<a href="/questions/add">提问题</a>
+							<a href="/questions/add">新建话题</a>
 						</li>
 						<li role="presentation" class="dropdown">
 							<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
@@ -28,7 +28,10 @@
 							</a>
 							<ul class="dropdown-menu">
 								<li role="presentation">
-									<a href="#">我的问题</a>
+									<a href="#">个人信息</a>
+								</li>
+								<li role="presentation">
+									<a href="/myQuestion">我的话题</a>
 								</li>
 								<li role="presentation">
 									<a href="/users/logout">退出</a>
