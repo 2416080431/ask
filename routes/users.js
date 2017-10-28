@@ -1,11 +1,27 @@
 var express = require('express');
+var fs = require('fs');
+var util = require('util');
+var formidable = require('formidable');
 var router = express.Router();
+var path = require('path');
+var sd = require('silly-datetime');
 let User = require('../models/user');
 let common = require('./common');
 
 ///请求注册页面
 router.get('/register',(req,res) =>{
 	res.render('user/register');
+});
+
+////请求上传头像页面
+router.get('/upload',(req,res) =>{
+	let username = req.session.username;
+	User.findOne({username},(err,doc) =>{
+		if(err){
+			throw err
+		}
+		res.render('user/upload',{result:doc});
+	})
 });
 
 ////////////////////////注册接口
@@ -26,7 +42,7 @@ router.post('/register',(req,res,next) =>{
 		}
 		
 		//2.用户名不存在，则写入数据库
-		User.create({"username":username,"password":password,"avatar":"null"}, (err,doc) =>{
+		User.create({"username":username,"password":password,"avatar":"/images/default.png"}, (err,doc) =>{
 			if(err){
 				res.locals.message = common.errorMessage("数据库插入异常");
 				return res.render('user/register');
@@ -78,5 +94,46 @@ router.get('/logout',(req,res) =>{
 	res.locals.username = '';
 	return res.redirect('/');
 });
+
+
+////////////////////上传头像
+router.post('/upload',(req,res) =>{
+	var form = new formidable.IncomingForm();
+	form.uploadDir = './public/images';
+	form.keepExtensions = true;
+	form.parse(req,(err,fileds,files) =>{
+		if(err){
+          throw err;
+      }
+		var time = sd.format(new Date(), 'YYYYMMDDHHmmss');
+		var ran = parseInt(Math.random() * 89999 + 10000);
+		var extname = path.extname(files.pic.name);
+		var picPath = __dirname.substr(0,__dirname.length-7);
+		var oldpath = picPath + '/' + files.pic.path;
+		var newpath = picPath + "/public/images/" + time + ran + extname;
+		
+		fs.rename(oldpath,newpath,(err) =>{
+			if(err){
+				throw err;
+			}
+			let dbPicPath = newpath.substr(30);
+			console.log(dbPicPath);
+			let username = req.session.username;
+			User.update({username},{$set:{"avatar":dbPicPath}},(err,docs) =>{
+				if(err){
+					throw err;
+				}
+				User.findOne({username},(err,doc) =>{
+					if(err){
+						throw err
+					}
+					res.render('user/upload',{result:doc});
+				});
+			})
+			
+		});
+	});
+});
+
 
 module.exports = router;
