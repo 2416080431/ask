@@ -221,7 +221,7 @@ router.get('/thumbUp',(req,res) =>{
 				}
 				isUp = fun_isUp(req,doc.up);
 				isDown = fun_isDown(req,doc.down);
-				res.render('question/detail',{result:doc,isUp,isDown,username});
+				res.json({isThumb:false});
 			});
 		}else{
 			newComment = doc.comments;
@@ -232,7 +232,7 @@ router.get('/thumbUp',(req,res) =>{
 				}
 				isUp = fun_isUp(req,doc.up);
 				isDown = fun_isDown(req,doc.down);
-				res.render('question/detail',{result:doc,isUp,isDown,username});
+				res.json({isThumb:true});
 			});
 		}
 	});

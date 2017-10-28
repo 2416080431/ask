@@ -28,22 +28,25 @@
 				<h4><%= result.comments[i].username %>：</h4>
 				<pre><%= result.comments[i].content %></pre>
 				<%if(result.comments[i].thumbUp.length == 0){%>
-					<button type="button" class="btn btn-default">
-						<a href="/questions/thumbUp?commentId=<%= result.comments[i]._id %>">
-						点赞:<%= result.comments[i].thumbUp.length %></a>
-					</button>
+					<button type="button" class="btn btn-default thumbUp" data-id="<%= result.comments[i]._id %>">
+							<!--<a href="/questions/thumbUp?commentId=<%= result.comments[i]._id %>">-->
+							点赞:<span><%= result.comments[i].thumbUp.length %></span>
+							<!--</a>-->
+						</button>
 				<%}%>
 				<%for(var j=0; j<result.comments[i].thumbUp.length; j++){%>
 					<%if(result.comments[i].thumbUp[j] == username){%>
-						<button type="button" class="btn btn-danger">
-							<a style="color: white;" href="/questions/thumbUp?commentId=<%= result.comments[i]._id %>">
-							点赞:<%= result.comments[i].thumbUp.length %></a>
+						<button type="button" class="btn btn-danger thumbUp" data-id="<%= result.comments[i]._id %>">
+							<!--<a style="color: white;" href="/questions/thumbUp?commentId=<%= result.comments[i]._id %>">-->
+							点赞:<span><%= result.comments[i].thumbUp.length %></span>
+							<!--</a>-->
 						</button>
 						<%break%>
 					<%}else if(j == result.comments[i].thumbUp.length-1){%>
-						<button type="button" class="btn btn-default">
-							<a href="/questions/thumbUp?commentId=<%= result.comments[i]._id %>">
-							点赞:<%= result.comments[i].thumbUp.length %></a>
+						<button type="button" class="btn btn-default thumbUp" data-id="<%= result.comments[i]._id %>">
+							<!--<a href="/questions/thumbUp?commentId=<%= result.comments[i]._id %>">-->
+							点赞:<span><%= result.comments[i].thumbUp.length %></span>
+							<!--</a>-->
 						</button>
 					<%}%>
 				<%}%>
@@ -57,4 +60,5 @@
 </div>
 </div>
 </body>
+<script type="text/javascript" src="/javascripts/question.js" ></script>
 </html>
