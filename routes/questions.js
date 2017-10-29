@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 let Question = require('../models/question');
+let User = require('../models/user');
 let common = require('./common');
 
 var detail_id;   ////用于记录当前提问的id
@@ -22,9 +23,19 @@ router.get('/detail',(req,res) =>{
 		if(err){
 			throw err
 		}
-		isUp = fun_isUp(req,doc.up);
-		isDown = fun_isDown(req,doc.down);
-		res.render('question/detail',{result:doc,isUp,isDown,username});
+		var avatar = [];
+		for(var i=0; i<doc.comments.length; i++){
+			(function(i){
+				User.findOne({"username":doc.comments[i].username},(err,docs) =>{
+					avatar.push(docs.avatar);
+					if(i == doc.comments.length-1){
+						isUp = fun_isUp(req,doc.up);
+						isDown = fun_isDown(req,doc.down);
+						res.render('question/detail',{result:doc,isUp,isDown,username,avatar});
+					}
+				});
+			})(i);
+		}
 	});
 });
 
