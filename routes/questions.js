@@ -4,34 +4,55 @@ let Question = require('../models/question');
 let User = require('../models/user');
 let common = require('./common');
 
-var detail_id;   ////用于记录当前提问的id
-var isUp = false;   ////////////用于标记当前用户是否已经顶提问
-var isDown = false;  ///////////用于标记当前用户是否已经踩提问
-var isThumb = [];  ////////////用于标记当前用户是否已经点赞的评论
-	
+var detail_id; ////用于记录当前提问的id
+var isUp = false; ////////////用于标记当前用户是否已经顶提问
+var isDown = false; ///////////用于标记当前用户是否已经踩提问
+var isThumb = []; ////////////用于标记当前用户是否已经点赞的评论
+
 //////////////请求新增提问页面
-router.get('/add',(req,res) =>{
+router.get('/add', (req, res) => {
 	res.render('question/add');
 });
 
 /////////////////请求提问详情页面
-router.get('/detail',(req,res) =>{
+router.get('/detail', (req, res) => {
 	let _id = req.query._id;
 	let username = req.session.username;
+	let avatar = [];
 	detail_id = _id;
-	Question.findOne({_id},(err,doc) =>{
-		if(err){
+	Question.findOne({
+		_id
+	}, (err, doc) => {
+		if(err) {
 			throw err
 		}
-		var avatar = [];
-		for(var i=0; i<doc.comments.length; i++){
-			(function(i){
-				User.findOne({"username":doc.comments[i].username},(err,docs) =>{
+		if(doc.comments.length == 0) {
+			isUp = fun_isUp(req, doc.up);
+			isDown = fun_isDown(req, doc.down);
+			res.render('question/detail', {
+				result: doc,
+				isUp,
+				isDown,
+				username,
+				avatar
+			});
+		}
+		for(var i = 0; i < doc.comments.length; i++) {
+			(function(i) {
+				User.findOne({
+					"username": doc.comments[i].username
+				}, (err, docs) => {
 					avatar.push(docs.avatar);
-					if(i == doc.comments.length-1){
-						isUp = fun_isUp(req,doc.up);
-						isDown = fun_isDown(req,doc.down);
-						res.render('question/detail',{result:doc,isUp,isDown,username,avatar});
+					if(i == doc.comments.length - 1) {
+						isUp = fun_isUp(req, doc.up);
+						isDown = fun_isDown(req, doc.down);
+						res.render('question/detail', {
+							result: doc,
+							isUp,
+							isDown,
+							username,
+							avatar
+						});
 					}
 				});
 			})(i);
@@ -40,24 +61,30 @@ router.get('/detail',(req,res) =>{
 });
 
 ///////////////////////请求新增评论页面
-router.get('/comment',(req,res) =>{
+router.get('/comment', (req, res) => {
 	res.render('question/comment');
 });
 
-
-
 ///////////////////////新增提问
-router.post('/add',(req,res) =>{
-	let {title,content} = req.body;
+router.post('/add', (req, res) => {
+	let {
+		title,
+		content
+	} = req.body;
 	let username = req.session.username;
 	let date = new Date().toLocaleDateString();
-	
-	Question.create({title,username,content,date},(err,doc) =>{
-		if(err){
+
+	Question.create({
+		title,
+		username,
+		content,
+		date
+	}, (err, doc) => {
+		if(err) {
 			res.locals.message = common.errorMessage('提问异常');
 			return res.render('question/add');
 		}
-		if(!doc){
+		if(!doc) {
 			res.locals.message = common.errorMessage('提问失败');
 			return res.render('question/add');
 		}
@@ -66,130 +93,301 @@ router.post('/add',(req,res) =>{
 	});
 });
 
-
 ///////////////////////////新增评论
-router.post('/comment',(req,res) =>{
+router.post('/comment', (req, res) => {
 	let content = req.body.content;
 	let _id = detail_id;
 	let username = req.session.username;
 	let newOne = {
-		"username":req.session.username,
-		"content":content,
-		"thumbUp":[]
+		"username": req.session.username,
+		"content": content,
+		"thumbUp": []
 	};
-	Question.update({_id},{$push:{"comments":newOne}},(err,doc) =>{
-		if(err){
+	Question.update({
+		_id
+	}, {
+		$push: {
+			"comments": newOne
+		}
+	}, (err, doc) => {
+		if(err) {
 			throw err;
 		}
-		Question.findOne({_id},(err,docs) =>{
-			if(err){
+		Question.findOne({
+			_id
+		}, (err, docs) => {
+			if(err) {
 				throw err
 			}
-			isUp = fun_isUp(req,docs.up);
-			isDown = fun_isDown(req,docs.down);
-			res.render('question/detail',{result:docs,isUp,isDown,username});
+			var avatar = [];
+			for(var i = 0; i < docs.comments.length; i++) {
+				(function(i) {
+					User.findOne({
+						"username": docs.comments[i].username
+					}, (err, doc1) => {
+						avatar.push(doc1.avatar);
+						if(i == docs.comments.length - 1) {
+							isUp = fun_isUp(req, docs.up);
+							isDown = fun_isDown(req, docs.down);
+							res.render('question/detail', {
+								result: docs,
+								isUp,
+								isDown,
+								username,
+								avatar
+							});
+						}
+					});
+				})(i);
+			}
 		});
 	});
 });
 
-
 //////////////////////////顶问题
-router.get('/up',(req,res) =>{
+router.get('/up', (req, res) => {
 	let _id = detail_id;
 	let username = req.session.username;
-	
+
 	///////////////////查询用户是否已经顶提问
-	Question.findOne({_id},(err,doc) =>{
-		if(err){
+	Question.findOne({
+		_id
+	}, (err, doc) => {
+		if(err) {
 			throw err
 		}
-		isUp = fun_isUp(req,doc.up);
-		isDown = fun_isDown(req,doc.down);
+		isUp = fun_isUp(req, doc.up);
+		isDown = fun_isDown(req, doc.down);
 		////////////如果用户已经踩了提问，则不响应
-		if(isDown){
-			res.render('question/detail',{result:doc,isUp,isDown,username});
+		if(isDown) {
+			var avatar = [];
+			for(var i = 0; i < doc.comments.length; i++) {
+				(function(i) {
+					User.findOne({
+						"username": doc.comments[i].username
+					}, (err, docs) => {
+						avatar.push(docs.avatar);
+						if(i == doc.comments.length - 1) {
+							isUp = fun_isUp(req, doc.up);
+							isDown = fun_isDown(req, doc.down);
+							res.render('question/detail', {
+								result: doc,
+								isUp,
+								isDown,
+								username,
+								avatar
+							});
+						}
+					});
+				})(i);
+			}
 		}
 		////////////如果用户已经顶了提问，则取消顶
-		if(isUp){
-			Question.update({_id},{$pull:{"up":username}},(err,doc) =>{
-				if(err){
+		if(isUp) {
+			Question.update({
+				_id
+			}, {
+				$pull: {
+					"up": username
+				}
+			}, (err, doc) => {
+				if(err) {
 					throw err;
 				}
-				Question.findOne({_id},(err,docs) =>{
-					if(err){
+				Question.findOne({
+					_id
+				}, (err, docs) => {
+					if(err) {
 						throw err
 					}
-					isUp = fun_isUp(req,docs.up);
-					isDown = fun_isDown(req,docs.down);
-					res.render('question/detail',{result:docs,isUp,isDown,username});
+					var avatar = [];
+					for(var i = 0; i < docs.comments.length; i++) {
+						(function(i) {
+							User.findOne({
+								"username": docs.comments[i].username
+							}, (err, doc1) => {
+								avatar.push(doc1.avatar);
+								if(i == docs.comments.length - 1) {
+									isUp = fun_isUp(req, docs.up);
+									isDown = fun_isDown(req, docs.down);
+									res.render('question/detail', {
+										result: docs,
+										isUp,
+										isDown,
+										username,
+										avatar
+									});
+								}
+							});
+						})(i);
+					}
 				});
 			});
 		}
 		///////////否则，该用户顶该提问
-		if(!isDown && !isUp){
-			Question.update({_id},{$push:{"up":username}},(err,doc) =>{
-				if(err){
+		if(!isDown && !isUp) {
+			Question.update({
+				_id
+			}, {
+				$push: {
+					"up": username
+				}
+			}, (err, doc) => {
+				if(err) {
 					throw err;
 				}
-				Question.findOne({_id},(err,docs) =>{
-					if(err){
+				Question.findOne({
+					_id
+				}, (err, docs) => {
+					if(err) {
 						throw err
 					}
-					isUp = fun_isUp(req,docs.up);
-					isDown = fun_isDown(req,docs.down);
-					res.render('question/detail',{result:docs,isUp,isDown,username});
+					var avatar = [];
+					for(var i = 0; i < docs.comments.length; i++) {
+						(function(i) {
+							User.findOne({
+								"username": docs.comments[i].username
+							}, (err, doc1) => {
+								avatar.push(doc1.avatar);
+								if(i == docs.comments.length - 1) {
+									isUp = fun_isUp(req, docs.up);
+									isDown = fun_isDown(req, docs.down);
+									res.render('question/detail', {
+										result: docs,
+										isUp,
+										isDown,
+										username,
+										avatar
+									});
+								}
+							});
+						})(i);
+					}
 				});
 			});
 		}
 	});
 });
 
-
 //////////////////////////踩问题
-router.get('/down',(req,res) =>{
+router.get('/down', (req, res) => {
 	let _id = detail_id;
 	let username = req.session.username;
-	
+
 	///////////////////查询用户是否已经踩提问
-	Question.findOne({_id},(err,doc) =>{
-		if(err){
+	Question.findOne({
+		_id
+	}, (err, doc) => {
+		if(err) {
 			throw err
 		}
-		isUp = fun_isUp(req,doc.up);
-		isDown = fun_isDown(req,doc.down);
+		isUp = fun_isUp(req, doc.up);
+		isDown = fun_isDown(req, doc.down);
 		////////////如果用户已经顶了提问，则不响应
-		if(isUp){
-			res.render('question/detail',{result:doc,isUp,isDown,username});
+		if(isUp) {
+			var avatar = [];
+			for(var i = 0; i < doc.comments.length; i++) {
+				(function(i) {
+					User.findOne({
+						"username": doc.comments[i].username
+					}, (err, docs) => {
+						avatar.push(docs.avatar);
+						if(i == doc.comments.length - 1) {
+							isUp = fun_isUp(req, doc.up);
+							isDown = fun_isDown(req, doc.down);
+							res.render('question/detail', {
+								result: doc,
+								isUp,
+								isDown,
+								username,
+								avatar
+							});
+						}
+					});
+				})(i);
+			}
 		}
 		////////////如果用户已经踩了提问，则取消踩
-		if(isDown){
-			Question.update({_id},{$pull:{"down":username}},(err,doc) =>{
-				if(err){
+		if(isDown) {
+			Question.update({
+				_id
+			}, {
+				$pull: {
+					"down": username
+				}
+			}, (err, doc) => {
+				if(err) {
 					throw err;
 				}
-				Question.findOne({_id},(err,docs) =>{
-					if(err){
+				Question.findOne({
+					_id
+				}, (err, docs) => {
+					if(err) {
 						throw err
 					}
-					isUp = fun_isUp(req,docs.up);
-					isDown = fun_isDown(req,docs.down);
-					res.render('question/detail',{result:docs,isUp,isDown,username});
+					var avatar = [];
+					for(var i = 0; i < docs.comments.length; i++) {
+						(function(i) {
+							User.findOne({
+								"username": docs.comments[i].username
+							}, (err, doc1) => {
+								avatar.push(doc1.avatar);
+								if(i == docs.comments.length - 1) {
+									isUp = fun_isUp(req, docs.up);
+									isDown = fun_isDown(req, docs.down);
+									res.render('question/detail', {
+										result: docs,
+										isUp,
+										isDown,
+										username,
+										avatar
+									});
+								}
+							});
+						})(i);
+					}
 				});
 			});
 		}
 		///////////否则，该用户踩该提问
-		if(!isDown && !isUp){
-			Question.update({_id},{$push:{"down":username}},(err,doc) =>{
-				if(err){
+		if(!isDown && !isUp) {
+			Question.update({
+				_id
+			}, {
+				$push: {
+					"down": username
+				}
+			}, (err, doc) => {
+				if(err) {
 					throw err;
 				}
-				Question.findOne({_id},(err,docs) =>{
-					if(err){
+				Question.findOne({
+					_id
+				}, (err, docs) => {
+					if(err) {
 						throw err
 					}
-					isUp = fun_isUp(req,docs.up);
-					isDown = fun_isDown(req,docs.down);
-					res.render('question/detail',{result:docs,isUp,isDown,username});
+					var avatar = [];
+					for(var i = 0; i < docs.comments.length; i++) {
+						(function(i) {
+							User.findOne({
+								"username": docs.comments[i].username
+							}, (err, doc1) => {
+								avatar.push(doc1.avatar);
+								if(i == docs.comments.length - 1) {
+									isUp = fun_isUp(req, docs.up);
+									isDown = fun_isDown(req, docs.down);
+									res.render('question/detail', {
+										result: docs,
+										isUp,
+										isDown,
+										username,
+										avatar
+									});
+								}
+							});
+						})(i);
+					}
 				});
 			});
 		}
@@ -197,68 +395,83 @@ router.get('/down',(req,res) =>{
 });
 
 ////////////////////////////给评论点赞
-router.get('/thumbUp',(req,res) =>{
+router.get('/thumbUp', (req, res) => {
 	let _id = detail_id;
 	let commentId = req.query.commentId;
 	let username = req.session.username;
-	let m;  ///标记当前评论下标
-	
+	let m; ///标记当前评论下标
+
 	////////////////查询用户是否已经给该评论点赞
-	Question.findOne({"comments._id":commentId},(err,doc) =>{
+	Question.findOne({
+		"comments._id": commentId
+	}, (err, doc) => {
 		////////////////////////////得到目标评论下标
-		for(let i=0; i<doc.comments.length; i++){
-			if(doc.comments[i]._id == commentId){
+		for(let i = 0; i < doc.comments.length; i++) {
+			if(doc.comments[i]._id == commentId) {
 				m = i;
 				break;
 			}
 		}
-		
+
 		///////////////////////////遍历是否该用户是否已经点过赞
 		let isThumb = false;
-		for(let i of doc.comments[m].thumbUp){
-			if(i == username){
+		for(let i of doc.comments[m].thumbUp) {
+			if(i == username) {
 				isThumb = true;
 				break;
 			}
 		}
 		let newComment;
-		
-		if(isThumb){
+
+		if(isThumb) {
 			newComment = doc.comments;
 			newComment[m].thumbUp.remove(username);
-			Question.update({"comments._id":commentId},{$set:{"comments":newComment}},(err,docs) =>{
-				if(err){
+			Question.update({
+				"comments._id": commentId
+			}, {
+				$set: {
+					"comments": newComment
+				}
+			}, (err, docs) => {
+				if(err) {
 					throw err
 				}
-				isUp = fun_isUp(req,doc.up);
-				isDown = fun_isDown(req,doc.down);
-				res.json({isThumb:false});
+				isUp = fun_isUp(req, doc.up);
+				isDown = fun_isDown(req, doc.down);
+				res.json({
+					isThumb: false
+				});
 			});
-		}else{
+		} else {
 			newComment = doc.comments;
 			newComment[m].thumbUp.push(username);
-			Question.update({"comments._id":commentId},{$set:{"comments":newComment}},(err,docs) =>{
-				if(err){
+			Question.update({
+				"comments._id": commentId
+			}, {
+				$set: {
+					"comments": newComment
+				}
+			}, (err, docs) => {
+				if(err) {
 					throw err
 				}
-				isUp = fun_isUp(req,doc.up);
-				isDown = fun_isDown(req,doc.down);
-				res.json({isThumb:true});
+				isUp = fun_isUp(req, doc.up);
+				isDown = fun_isDown(req, doc.down);
+				res.json({
+					isThumb: true
+				});
 			});
 		}
 	});
 });
 
-
 module.exports = router;
 
-
-
 ///////////////////判断当前用户是否顶提问
-function fun_isUp(req,upUser){
+function fun_isUp(req, upUser) {
 	let username = req.session.username;
-	for(let i of upUser){
-		if(i == username){
+	for(let i of upUser) {
+		if(i == username) {
 			return true;
 		}
 	}
@@ -266,10 +479,10 @@ function fun_isUp(req,upUser){
 }
 
 ///////////////////判断当前用户是否踩提问
-function fun_isDown(req,downUser){
+function fun_isDown(req, downUser) {
 	let username = req.session.username;
-	for(let i of downUser){
-		if(i == username){
+	for(let i of downUser) {
+		if(i == username) {
 			return true;
 		}
 	}
