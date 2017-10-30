@@ -119,6 +119,17 @@ router.post('/comment', (req, res) => {
 			if(err) {
 				throw err
 			}
+			if(docs.comments.length == 0) {
+			isUp = fun_isUp(req, doc.up);
+			isDown = fun_isDown(req, doc.down);
+			res.render('question/detail', {
+				result: doc,
+				isUp,
+				isDown,
+				username,
+				avatar
+			});
+		}
 			var avatar = [];
 			for(var i = 0; i < docs.comments.length; i++) {
 				(function(i) {
@@ -158,6 +169,17 @@ router.get('/up', (req, res) => {
 		}
 		isUp = fun_isUp(req, doc.up);
 		isDown = fun_isDown(req, doc.down);
+		if(doc.comments.length == 0) {
+			isUp = fun_isUp(req, doc.up);
+			isDown = fun_isDown(req, doc.down);
+			res.render('question/detail', {
+				result: doc,
+				isUp,
+				isDown,
+				username,
+				avatar
+			});
+		}
 		////////////如果用户已经踩了提问，则不响应
 		if(isDown) {
 			var avatar = [];
@@ -283,6 +305,17 @@ router.get('/down', (req, res) => {
 		}
 		isUp = fun_isUp(req, doc.up);
 		isDown = fun_isDown(req, doc.down);
+		if(doc.comments.length == 0) {
+			isUp = fun_isUp(req, doc.up);
+			isDown = fun_isDown(req, doc.down);
+			res.render('question/detail', {
+				result: doc,
+				isUp,
+				isDown,
+				username,
+				avatar
+			});
+		}
 		////////////如果用户已经顶了提问，则不响应
 		if(isUp) {
 			var avatar = [];
